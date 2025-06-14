@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	desc "github.com/singl3focus/grpc_api/auth/pkg/auth_v1"
+	desc "github.com/singl3focus/cli_messenger/auth/pkg/auth_v1"
 )
 
 const grpcPort = 50001

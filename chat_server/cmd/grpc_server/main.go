@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc/reflection"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
 
-	desc "github.com/singl3focus/grpc_api/chat_server/pkg/chat_server_v1"
+	desc "github.com/singl3focus/cli_messenger/chat_server/pkg/chat_server_v1"
 )
 
 const grpcPort = 50002

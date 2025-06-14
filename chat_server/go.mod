@@ -1,4 +1,4 @@
-module github.com/singl3focus/grpc_api/chat_server
+module github.com/singl3focus/cli_messenger/chat_server
 
 go 1.23.0
 

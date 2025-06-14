@@ -1,4 +1,4 @@
-module github.com/singl3focus/grpc_api/auth
+module github.com/singl3focus/cli_messenger/auth
 
 go 1.23.0
 
