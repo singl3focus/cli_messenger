@@ -1,8 +1,11 @@
 LOCAL_BIN:=$(CURDIR)/bin
 
+# for windows
+
 install-deps:
-	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.35.1
-	go install -mod=mod google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+	@set "GOBIN=$(LOCAL_BIN)" && go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.35.1
+	@set "GOBIN=$(LOCAL_BIN)" && go install -mod=mod google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+	@set "GOBIN=$(LOCAL_BIN)" && go install github.com/pressly/goose/v3/cmd/goose@v3.14.0
 
 get-deps:
 	go get -u google.golang.org/grpc
@@ -13,7 +16,6 @@ get-deps:
 generate:
 	make generate-auth-api
 
-# for windows
 generate-auth-api:
 	if not exist "pkg\auth_v1" md "pkg\auth_v1"
 	protoc --proto_path api\auth_v1 \

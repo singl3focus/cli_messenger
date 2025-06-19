@@ -1,0 +1,47 @@
+volumes:
+  postgres_volume:
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=${PG_DATABASE_NAME}
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASSWORD}
+    ports:
+      - ${PG_PORT}:5432
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER}"]  
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+
+  migrator:
+    depends_on:
+      postgres:
+        condition: service_healthy
+    build:
+      context: .
+      dockerfile: build/docker/migrations/Dockerfile    
+    environment:
+      - MIGRATION_DIR=${MIGRATION_DIR}
+      - PG_DSN=${PG_DSN}
+
+  grpc-server:
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_started
+    build:
+      context: .
+      dockerfile: build/docker/grpc-server/Dockerfile
+    environment:
+      - TZ=Europe/Moscow
+    ports:
+      - ${GRPC_EXTEND_PORT}:${GRPC_PORT}
+    command: ["./app", "config-path=build/docker/configs/local.env"]
+
+   
