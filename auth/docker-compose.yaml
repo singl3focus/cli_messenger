@@ -19,22 +19,18 @@ services:
       - postgres_volume:/var/lib/postgresql/data
 
   migrator:
-    depends_on:
-      postgres:
-        condition: service_healthy
     build:
       context: .
       dockerfile: build/docker/migrations/Dockerfile    
+      args:
+        MIGRATION_DIR: migrations
     environment:
-      - MIGRATION_DIR=${MIGRATION_DIR}
       - PG_DSN=${PG_DSN}
-
-  grpc-server:
     depends_on:
       postgres:
         condition: service_healthy
-      migrator:
-        condition: service_started
+
+  grpc-server:
     build:
       context: .
       dockerfile: build/docker/grpc-server/Dockerfile
@@ -42,6 +38,9 @@ services:
       - TZ=Europe/Moscow
     ports:
       - ${GRPC_EXTEND_PORT}:${GRPC_PORT}
-    command: ["./app", "config-path=build/docker/configs/local.env"]
-
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrator:
+        condition: service_started
    

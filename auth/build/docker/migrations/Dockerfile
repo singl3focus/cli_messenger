@@ -1,4 +1,8 @@
+ARG MIGRATION_DIR
+
 FROM alpine:3.18
+
+ARG MIGRATION_DIR
 
 RUN apk update && \
     apk upgrade && \
@@ -10,8 +14,13 @@ RUN apk update && \
 ADD https://github.com/pressly/goose/releases/download/v3.14.0/goose_linux_x86_64 /bin/goose
 RUN chmod +x /bin/goose
 
-WORKDIR /root
+WORKDIR /opt/migrations
 
-ADD ${MIGRATION_DIR}/*.sql migrations/
+RUN mkdir -p migrations
 
-CMD ["sh", "-c", "sleep 2 && goose -dir ./migrations postgres \"$PG_DSN\" up -v"]
+COPY ${MIGRATION_DIR} ./migrations/
+
+RUN echo "migration_dir=${MIGRATION_DIR}"
+RUN ls -laR > /ls_output.txt && cat /ls_output.txt
+
+CMD ["sh", "-c", "sleep 2 && goose -dir ./migrations postgres \"${PG_DSN}\" up -v"]

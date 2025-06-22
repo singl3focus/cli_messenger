@@ -2,16 +2,16 @@
 CREATE SCHEMA IF NOT EXISTS auth;
 
 CREATE TABLE auth.tbl_user (
-    id serial primary key,
-    "name" not null varchar,
-    email not null unique varchar,
-    password_hash not null varchar,
-    "role" not null int,
-    created_at not null varchar,
-    updated_at not null varchar,
+    id SERIAL primary key,
+    "name" VARCHAR not null,
+    email VARCHAR not null unique,
+    password_hash VARCHAR not null,
+    "role" INT not null,
+    created_at TIMESTAMP WITH TIME ZONE not null,
+    updated_at TIMESTAMP WITH TIME ZONE not null
 );
 
-COMMENT ON COLUMN auth.tbl_user."role" IS '0 - User, 1 - Admin'  
+COMMENT ON COLUMN auth.tbl_user."role" IS '0 - User, 1 - Admin';
 -- +goose StatementBegin
 SELECT 'up SQL query';
 -- +goose StatementEnd

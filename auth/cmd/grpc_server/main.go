@@ -26,6 +26,8 @@ var configPath string
 
 func init() {
 	flag.StringVar(&configPath, "config-path", ".env", "path to config file")
+
+	flag.Parse()
 }
 
 type server struct {
@@ -48,7 +50,7 @@ func (s *server) CreateUser(ctx context.Context, req *desc.CreateUserRequest) (*
 		int(req.User.GetRole()),
 	)
 	if err != nil {
-		return nil, status.Errorf(codes.Unknown, "%s: creating user model has failed", op)
+		return nil, status.Errorf(codes.Unknown, "%s: creating user model has failed: %s", op, err)
 	}
 
 	log.Printf("Create User: %v", user)
@@ -144,7 +146,7 @@ func (s *server) DeleteUser(ctx context.Context, req *desc.DeleteUserRequest) (*
 
 func main() {
 	cfg := config.NewConfig(config.ENV)
-
+	
 	if err := cfg.Load(configPath); err != nil {
 		log.Fatalf("%s (path %s)", err, configPath)
 	}

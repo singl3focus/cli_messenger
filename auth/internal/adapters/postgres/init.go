@@ -26,6 +26,10 @@ func NewPostgres(dsn string) (*Database, error) {
 		return nil, err
 	}
 
+	if err := pool.Ping(ctx); err != nil {
+		return nil, err
+	}
+
 	return &Database{
 		pool: pool,
 	}, nil
@@ -36,25 +40,25 @@ func (d *Database) Close() {
 }
 
 const (
-	tblUser = "tbl_user"
+	tblUser = "auth.tbl_user"
 )
 
 func (d *Database) CreateUser(ctx context.Context, user models.User) (int64, error) {
 	const op = "postgres.CreateUser"
 	
 	query, args, err := sqBuilder.Insert(tblUser).
-			Columns("name", "email", "password_hash", "role").
-			Values(user.Name, user.Email, user.PasswordHash, user.Role).
+			Columns("name", "email", "password_hash", "role", "created_at", "updated_at").
+			Values(user.Name, user.Email, user.PasswordHash, user.Role, user.CreatedAt, user.UpdatedAt).
 			Suffix("RETURNING id").
 			ToSql()
 	if err != nil {
-		return 0, fmt.Errorf("%s:%w", op, err)
+		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
 	var id int64
 	err = d.pool.QueryRow(ctx, query, args...).Scan(&id)
 	if err != nil {
-		return 0, fmt.Errorf("%s:%w", op, err)
+		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return id, nil
@@ -71,13 +75,13 @@ func (d *Database) GetUser(ctx context.Context, id int64) (models.User, error) {
 		Where(sq.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		return user, fmt.Errorf("%s:%w", op, err)
+		return user, fmt.Errorf("%s: %w", op, err)
 	}
 
 	err = d.pool.QueryRow(ctx, query, args...).
 		Scan(&user.ID, &user.Name, &user.Email, &user.PasswordHash, &user.Role, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
-		return user, fmt.Errorf("%s:%w", op, err)
+		return user, fmt.Errorf("%s: %w", op, err)
 	}
 
 	return user, nil
@@ -98,12 +102,12 @@ func (d *Database) UpdateUser(ctx context.Context, id int64, name, email *string
 
 	query, args, err := builder.ToSql()	
 	if err != nil {
-		return fmt.Errorf("%s:%w", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	result, err := d.pool.Exec(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("%s:%w", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	if rowsAffected := result.RowsAffected(); rowsAffected == 0 {
@@ -120,12 +124,12 @@ func (d *Database) DeleteUser(ctx context.Context, id int64) error {
 		Where(sq.Eq{"id": id}).
 		ToSql()
 	if err != nil {
-		return fmt.Errorf("%s:%w", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	result, err := d.pool.Exec(ctx, query, args...)
 	if err != nil {
-		return fmt.Errorf("%s:%w", op, err)
+		return fmt.Errorf("%s: %w", op, err)
 	}
 
 	if rowsAffected := result.RowsAffected(); rowsAffected == 0 {

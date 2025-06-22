@@ -20,7 +20,11 @@ RUN cp /usr/share/zoneinfo/${TZ} /etc/localtime && \
     echo "${TZ}" > /etc/timezone
     
 COPY --from=builder /opt/auth/bin/app .
+COPY --from=builder /opt/auth/build/docker/configs/prod.env .
 
 RUN chmod +x ./app
 
-CMD [ "./app" ]
+RUN ls -laR > /ls_output.txt && cat /ls_output.txt
+RUN cat ./prod.env
+
+CMD [ "./app", "--config-path=./prod.env" ]

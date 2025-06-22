@@ -10,7 +10,7 @@ import (
 const (
 	grpcPort = "GRPC_PORT"
 
-	postgresDSN = "POSTGRES_DSN"
+	postgresDSN = "PG_DSN"
 )
 
 type Config struct {}
@@ -29,9 +29,9 @@ func (c Config) GRPCPort() int {
 		panic("var is empty: " + grpcPort)
 	}
 
-	portInt, err := strconv.Atoi(grpcPort)
+	portInt, err := strconv.Atoi(portString)
 	if err != nil {
-		panic(err)
+		panic(err.Error() + " grpcPort: " + portString)
 	}
 
 	return portInt
